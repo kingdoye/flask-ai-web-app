@@ -4,8 +4,7 @@ setuptools>=68.0.0
 wheel
 pip>=23.0
 requests==2.31.0
-# pandas is removed – you don't need it at runtime
-scikit-learn==1.3.2
+scikit-learn==1.6.1
 flask==2.2.5
 numpy==1.23.5
 tensorflow==2.13.0
