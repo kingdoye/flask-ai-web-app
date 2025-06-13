@@ -1,0 +1,434 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Smart Energy Monitor</title>
+  <meta charset='UTF-8' />
+  <meta name='viewport' content='width=device-width, initial-scale=1.0' />
+  <style>
+    /* ===== BODY & GENERAL STYLES ===== */
+    body {
+      font-family: Arial, sans-serif;
+      padding: 20px;
+      text-align: center;
+      color: #2c3e50;
+      min-height: 100vh;
+      margin: 0;
+    }
+
+    h1 {
+      color: #2c3e50;
+      font-size: 2.5em;
+      margin-bottom: 30px;
+    }
+
+    /* ===== GAUGE SECTION STYLES ===== */
+    .gauge-container {
+      display: inline-block;
+      margin: 20px;
+      background: white;
+      border-radius: 10px;
+      padding: 25px;
+      border: 2px solid #ddd;
+    }
+
+    .gauge-title {
+      font-size: 24px;
+      font-weight: bold;
+      margin-bottom: 15px;
+      color: #34495e;
+    }
+
+    .gauge {
+      width: 300px;
+      height: 40px;
+    }
+
+    .value-container {
+      margin-top: 15px;
+      font-size: 28px;
+      font-weight: bold;
+      color: #2980b9;
+    }
+
+    .units {
+      font-size: 18px;
+      color: #7f8c8d;
+      font-weight: normal;
+    }
+
+    /* ===== AI MESSAGE SECTION STYLES ===== */
+    .ai-message-container {
+      margin: 30px auto;
+      max-width: 500px;
+      background: white;
+      border-radius: 10px;
+      padding: 25px;
+      border: 2px solid #ddd;
+      text-align: center;
+    }
+
+    .ai-message-label {
+      font-size: 20px;
+      font-weight: bold;
+      margin-bottom: 15px;
+      color: #e74c3c;
+    }
+
+    .ai-message-box {
+      width: calc(100% - 24px);
+      height: 50px;
+      border: 2px solid #e74c3c;
+      border-radius: 5px;
+      padding: 10px;
+      font-size: 18px;
+      text-align: center;
+      background: white;
+      color: #e74c3c;
+      font-weight: bold;
+      box-sizing: border-box;
+    }
+
+    /* ===== TOGGLE SECTION STYLES ===== */
+    .toggle-section {
+      background: white;
+      border-radius: 10px;
+      padding: 30px;
+      margin: 40px auto;
+      max-width: 400px;
+      border: 2px solid #ddd;
+    }
+
+    .toggle-section h2 {
+      color: #2c3e50;
+      margin-bottom: 10px;
+      font-size: 24px;
+    }
+
+    .toggle-section p {
+      color: #7f8c8d;
+      margin-bottom: 25px;
+    }
+
+    .toggle-label {
+      font-weight: bold;
+      margin: 20px 0 10px 0;
+      display: block;
+      color: #34495e;
+      font-size: 16px;
+    }
+
+    .toggle-button {
+      appearance: none;
+      width: 60px;
+      height: 30px;
+      background: #ccc;
+      border-radius: 15px;
+      position: relative;
+      cursor: pointer;
+      outline: none;
+      transition: background 0.3s;
+    }
+
+    .toggle-button::before {
+      content: '';
+      position: absolute;
+      top: 3px;
+      left: 3px;
+      width: 24px;
+      height: 24px;
+      background: white;
+      border-radius: 50%;
+      transition: transform 0.3s;
+    }
+
+    .toggle-button:checked {
+      background: #4CAF50;
+    }
+
+    .toggle-button:checked::before {
+      transform: translateX(30px);
+    }
+
+    /* ===== CHART SECTION STYLES ===== */
+    .chart-container {
+      background: white;
+      border-radius: 10px;
+      padding: 30px;
+      margin: 30px auto;
+      max-width: 700px;
+      border: 2px solid #ddd;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      flex-direction: column;
+    }
+
+    .chart-container h1 {
+      color: #2c3e50;
+      font-size: 2em;
+      margin-bottom: 10px;
+    }
+
+    .chart-container p {
+      color: #7f8c8d;
+      margin-bottom: 25px;
+    }
+
+    /* ===== RESPONSIVE DESIGN ===== */
+    @media (max-width: 768px) {
+      .gauge-container {
+        margin: 15px 5px;
+        padding: 20px;
+      }
+      
+      .gauge {
+        width: 250px;
+      }
+      
+      .toggle-section {
+        max-width: 300px;
+        padding: 20px;
+      }
+      
+      .chart-container {
+        max-width: 90%;
+        padding: 20px;
+      }
+      
+      h1 {
+        font-size: 2em;
+      }
+    }
+  </style>
+</head>
+<script src='chart.js'></script>
+<body>
+  <h1>Smart Energy Monitor</h1>
+
+  <div class='gauge-container'>
+    <div class='gauge-title'>Voltage</div>
+    <meter id='voltage-gauge' class='gauge' min='0' max='250' low='190' high='245' optimum='230' value='0'></meter>
+    <div class='value-container'><span id='voltage-value'>0</span> <span class='units'>V</span></div>
+  </div>
+
+  <div class='gauge-container'>
+    <div class='gauge-title'>Current</div>
+    <meter id='current-gauge' class='gauge' min='0' max='10' low='1' high='8' optimum='5' value='0'></meter>
+    <div class='value-container'><span id='current-value'>0</span> <span class='units'>A</span></div>
+  </div>
+
+  <div class='gauge-container'>
+    <div class='gauge-title'>Power</div>
+    <meter id='power-gauge' class='gauge' min='0' max='3500' low='500' high='2500' optimum='1500' value='0'></meter>
+    <div class='value-container'><span id='power-value'>0</span> <span class='units'>W</span></div>
+  </div>
+
+  <div class='ai-message-container'>
+    <div class='ai-message-label'>AI MESSAGE:</div>
+    <input type='text' id='ai-message-box' class='ai-message-box' readonly />
+  </div>
+
+  <div class='gauge-container'>
+    <div class='gauge-title'>Total Predicted Power</div>
+    <meter id='predicted-power-gauge' class='gauge' min='0' max='3500' low='500' high='2500' optimum='1500' value='0'></meter>
+    <div class='value-container'><span id='predicted-power-value'>0</span> <span class='units'>W</span></div>
+  </div>
+
+  <div class='gauge-container'>
+    <div class='gauge-title'>Billing</div>
+    <div class='value-container'><span id='billing-value'>₦0.2</span></div>
+  </div>
+
+  <div class='gauge-container'>
+    <div class='gauge-title'>Amount Saved</div>
+    <div class='value-container'><span id='amount-saved-value'>₦0</span></div>
+  </div>
+
+  <div class='toggle-section'>
+    <h2>Control Your Loads</h2>
+    <P>This section allows you to be able to control the connected loads remotely</P>
+    <label class='toggle-label' for='load1-toggle'>Load 1</label>
+    <input type='checkbox' id='load1-toggle' class='toggle-button'>
+
+    <label class='toggle-label' for='load2-toggle'>Load 2</label>
+    <input type='checkbox' id='load2-toggle' class='toggle-button'>
+
+    <label class='toggle-label' for='load3-toggle'>Load 3</label>
+    <input type='checkbox' id='load3-toggle' class='toggle-button'>
+
+    <label class='toggle-label' for='load4-toggle'>Load 4</label>
+    <input type='checkbox' id='load4-toggle' class='toggle-button'>
+  </div>
+
+  <h1>Load Profile</h1>
+  <p>The load profile below shows the per hour power consumption of the consumer</p>
+  <div class='chart-container'>
+    <canvas id='myChart' style='width:100%; max-width:600px;'></canvas>
+
+    <script>
+    var array_length = 24;
+    var xValues = [];
+    for(let i = 0; i < array_length; i++){
+      xValues[i] = i;
+    }
+    var yValues = []; // Example data
+
+   const mychart = new Chart('myChart', {
+    type: 'line',
+    data: {
+      labels: xValues,
+      datasets: [{
+        label: 'Hourly Energy consumption', // Proper label
+        fill: false,
+        tension: 0,
+        backgroundColor: 'rgba(0,0,255,1.0)',
+        borderColor: 'rgba(0,0,255,0.3)',
+        data: yValues
+      }]
+    },
+    options: {
+      plugins: {
+        legend: { display: true }
+      },
+      scales: {
+            y: {
+                 Min: 50,
+                 Max: 100,        
+                title: {
+                display: true,
+                text: 'Energy(Kwh)', // Fixed: This should be Energy, not TIME
+                font: {
+                size: 16,
+                weight: 'bold'
+                }
+            }
+            },  
+            x: {
+            min: 0,
+            max: 23, // Added max value for X-axis
+            title: {
+            display: true,
+            text: 'Time(h)',
+            font: {
+              size: 16,
+              weight: 'bold'
+            }
+          }
+        }
+      }
+    }
+  });
+    </script>
+  </div>
+
+  <script>
+    let socket;
+
+    function init() {
+      socket = new WebSocket('ws://' + window.location.hostname + ':81/');
+
+socket.onmessage = function (event) {
+  try {
+    const obj = JSON.parse(event.data);
+    console.log("WebSocket received:", obj);
+
+    // Handle real-time values (rand1, rand2, rand3)
+    if (
+      obj.hasOwnProperty('rand1') &&
+      obj.hasOwnProperty('rand2') &&
+      obj.hasOwnProperty('rand3')
+    ) {
+      document.getElementById('voltage-gauge').value = obj.rand1;
+      document.getElementById('voltage-value').innerText = obj.rand1;
+      document.getElementById('current-gauge').value = obj.rand2;
+      document.getElementById('current-value').innerText = obj.rand2;
+      document.getElementById('power-gauge').value = obj.rand3;
+      document.getElementById('power-value').innerText = obj.rand3;
+    }
+
+    // Handle AI message updates (rand5)
+    if (obj.hasOwnProperty('rand4')) {
+      const aiMessageBox = document.getElementById('ai-message-box');
+      if (obj.rand4 == 1) {
+        aiMessageBox.value = 'ANOMALY DETECTED';
+      } else {
+        aiMessageBox.value = '';
+      }
+    }
+
+    // Handle predicted power updates (rand6)
+   if (obj.hasOwnProperty('rand5')) {
+  document.getElementById('predicted-power-gauge').value = obj.rand5;
+  document.getElementById('predicted-power-value').innerText = obj.rand5;
+  
+  // Calculate amount saved (actual is optimized, predicted is unoptimized)
+  const actualPower = parseFloat(document.getElementById('power-value').innerText) || 0; // Optimized power (Watts)
+  const predictedPower = parseFloat(obj.rand5) || 0; // Unoptimized power (Watts)
+  
+  const powerSaved = Math.max(0, predictedPower - actualPower); // Watts saved through optimization
+  const energySaved = powerSaved * 1; // Convert Watts to kWh 
+  const moneySaved = energySaved * 0.2; // $0.2 per kWh (realistic residential rate)
+  
+  document.getElementById('amount-saved-value').innerText = '₦' + moneySaved.toFixed(2);
+  }
+    // Handle graph updates
+    if (obj.type === "graph_update" && Array.isArray(obj.value)) {
+      console.log("Graph update received:", obj.value);
+      mychart.data.datasets[0].data = obj.value;
+      mychart.update();
+    }
+
+    // Handle load toggle updates
+      if (
+      obj.hasOwnProperty('load1') &&
+      obj.hasOwnProperty('load2') &&
+      obj.hasOwnProperty('load3') &&
+      obj.hasOwnProperty('load4')
+    ) {
+      updateLoadStates(obj);
+    }
+
+  } catch (e) {
+    console.error("WebSocket message parse error:", e);
+  }
+};
+
+
+    }
+
+    window.onload = function () {
+      init();
+      socket.onopen = function () {
+        socket.send('GET_LOAD_STATES');
+      };
+
+      document.getElementById('load1-toggle').addEventListener('change', function (e) {
+        var msg = { type: 'load_selected_1', value: e.target.checked ? 0 : 1 };
+        socket.send(JSON.stringify(msg));
+      });
+
+      document.getElementById('load2-toggle').addEventListener('change', function (e) {
+        var msg = { type: 'load_selected_2', value: e.target.checked ? 0 : 1 };
+        socket.send(JSON.stringify(msg));
+      });
+
+      document.getElementById('load3-toggle').addEventListener('change', function (e) {
+        var msg = { type: 'load_selected_3', value: e.target.checked ? 0 : 1 };
+        socket.send(JSON.stringify(msg));
+      });
+
+      document.getElementById('load4-toggle').addEventListener('change', function (e) {
+        var msg = { type: 'load_selected_4', value: e.target.checked ? 0 : 1 };
+        socket.send(JSON.stringify(msg));
+      });
+    };
+
+    function updateLoadStates(loadStates) {
+      document.getElementById('load1-toggle').checked = loadStates.load1 === 1;
+      document.getElementById('load2-toggle').checked = loadStates.load2 === 1;
+      document.getElementById('load3-toggle').checked = loadStates.load3 === 1;
+      document.getElementById('load4-toggle').checked = loadStates.load4 === 1;
+    }
+  </script>
+</body>
+</html> 
