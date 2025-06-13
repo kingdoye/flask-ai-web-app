@@ -1,0 +1,2 @@
+buildCommand: "./.render/build.sh"
+startCommand: "python app.py"  # Replace with your real start command
